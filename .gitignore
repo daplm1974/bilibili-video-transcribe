@@ -1,0 +1,6 @@
+node_modules/
+*.m4a
+*.wav
+.*.m4a
+.*.wav
+transcript*.txt
