@@ -34,3 +34,18 @@ node scripts/bilibili-transcribe.js BV1NPeU6eEB5
 - Bilibili subtitle/AI-summary endpoints require login — this skill avoids them entirely.
 - Windows: if `onnxruntime-node` fails to load, install the [VC++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe).
 - Whisper-small mixes Simplified/Traditional Chinese and mishears domain jargon (`tick`, `QMT`, …) — correct terms when summarizing.
+
+## Pipeline scripts
+
+`scripts/pipeline/` contains the staged pipeline used in production (alternative to the single-file script):
+
+```
+1_fetch.js   B站API下载音频+视频 → wav + 1fps字幕帧裁剪放大
+2_asr.js     本地Whisper-small转录 (无额度限制)
+3_ocr.js     glm-4v-flash逐帧OCR — 并发8 + 1302指数退避重试 + 断点缓存 (实测账户并发上限10)
+4_merge.js   合并为带时间轴字幕
+```
+
+Concurrency measured empirically: 2/5/8/10 parallel calls all pass; ≥12 triggers error `1302` (rate limit). Script uses 8 with retry to stay safe.
+
+> Note: `3_ocr.js` reads the API key from `~/.pi/agent/auth.json` (zai-coding-cn). Replace with your own Zhipu key source if used standalone.
