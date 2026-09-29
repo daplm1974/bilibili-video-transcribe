@@ -39,8 +39,8 @@ node scripts/bilibili-transcribe.js BV1NPeU6eEB5
 
 `scripts/pipeline/` contains the staged pipeline used in production (alternative to the single-file script):
 
-```
-1_fetch.js   B站API下载音频+视频 → wav + 1fps字幕帧裁剪放大
+```text
+1_fetch.js   B站API下载音频+视频 → wav + 1fps字幕帧裁剪放大（底部72%~100%字幕带，画质自适应：720P起步抽帧OCR探测，拿不到字幕才升级1080P try_look）
 2_asr.js     本地Whisper-small转录 (无额度限制)
 3_ocr.js     glm-4v-flash逐帧OCR — 并发8 + 1302指数退避重试 + 断点缓存 (实测账户并发上限10)
 4_merge.js   合并为带时间轴字幕
@@ -52,6 +52,7 @@ Concurrency measured empirically: 2/5/8/10 parallel calls all pass; ≥12 trigge
 
 ## Status (2026-09-29)
 
-- Pipeline battle-tested on 3 videos（大QMT直连实盘 / tick接口全解析 / 集合竞价tick获取）— final transcripts in `output/<video>/`.
+- Pipeline battle-tested on 4 videos（大QMT直连实盘 / tick接口全解析 / 集合竞价tick获取 / 外部程序与大QMT通信）— final transcripts in `output/<video>/`.
+- Adaptive quality: anonymous streams cap at 720P; `try_look=1` unlocks real 1080P DASH — used only when 720P probe frames OCR poorly (small bottom-edge subtitles).
 - `work/` intermediates (raw ASR, downloaded media, frame JSONs) stay local and are gitignored.
 - Stable & ready-to-use; no active development. Possible next steps: batch-queue multiple BV ids in one run; word-level subtitle alignment via FunASR :8104 timestamps.

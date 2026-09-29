@@ -8,7 +8,8 @@ catch(e){console.error('无法读取 auth.json',e.message);process.exit(1);}
 const fs=require('fs'),path=require('path');
 const work=path.join(process.cwd(),'work');
 const framesDir=path.join(work,'frames');
-const files=fs.existsSync(framesDir)?fs.readdirSync(framesDir).filter(f=>f.endsWith('.png')).sort():[];
+// 按帧号数字排序（>999帧时字符串排序会乱序）
+const files=fs.existsSync(framesDir)?fs.readdirSync(framesDir).filter(f=>f.endsWith('.png')).sort((a,b)=>parseInt(a.match(/\d+/)[0],10)-parseInt(b.match(/\d+/)[0],10)):[];
 if(!files.length){console.log('无字幕帧，跳过OCR');process.exit(0);}
 
 const CONCURRENCY=8, MAX_RETRY=4;
@@ -36,10 +37,14 @@ async function ocrOne(b64,retries){
 
 (async()=>{
   const cachePath=path.join(work,'ocr_frames.json');
-  const cache=fs.existsSync(cachePath)?JSON.parse(fs.readFileSync(cachePath,'utf8')):[];
+  let cache=[];
+  try{cache=JSON.parse(fs.readFileSync(cachePath,'utf8'));}
+  catch{ // 缓存损坏：备份后从空缓存重新开始，避免整个OCR崩溃
+    if(fs.existsSync(cachePath)){fs.copyFileSync(cachePath,cachePath+'.bak');console.error('warn: 缓存损坏，已备份为 ocr_frames.json.bak，重新开始OCR');}
+  }
   const results=new Array(files.length);
   let done=cache.filter(Boolean).length;
-  files.forEach((f,i)=>{
+  files.forEach((_f,i)=>{
     if(cache[i]&&cache[i].txt){results[i]=cache[i];}
   });
   const pending=files.map((f,i)=>({f,i})).filter(x=>!results[x.i]);
