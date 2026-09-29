@@ -49,3 +49,9 @@ node scripts/bilibili-transcribe.js BV1NPeU6eEB5
 Concurrency measured empirically: 2/5/8/10 parallel calls all pass; ≥12 triggers error `1302` (rate limit). Script uses 8 with retry to stay safe.
 
 > Note: `3_ocr.js` reads the API key from `~/.pi/agent/auth.json` (zai-coding-cn). Replace with your own Zhipu key source if used standalone.
+
+## Status (2026-09-29)
+
+- Pipeline battle-tested on 3 videos（大QMT直连实盘 / tick接口全解析 / 集合竞价tick获取）— final transcripts in `output/<video>/`.
+- `work/` intermediates (raw ASR, downloaded media, frame JSONs) stay local and are gitignored.
+- Stable & ready-to-use; no active development. Possible next steps: batch-queue multiple BV ids in one run; word-level subtitle alignment via FunASR :8104 timestamps.

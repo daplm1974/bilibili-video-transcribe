@@ -4,3 +4,5 @@ node_modules/
 .*.m4a
 .*.wav
 transcript*.txt
+output/**/work/
+output/**/ocr_frames.json
