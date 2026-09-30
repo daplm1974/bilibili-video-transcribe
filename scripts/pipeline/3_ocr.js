@@ -2,9 +2,10 @@
 /** 3_ocr.js — 字幕帧OCR (glm-4v-flash, 免费) 并发8 + 1302退避重试
  *  输入: work/frames/*.png   输出: work/ocr_frames.json (支持断点缓存)
  */
-let key='';
-try{key=JSON.parse(require('fs').readFileSync(process.env.HOME+'/.pi/agent/auth.json','utf8'))['zai-coding-cn'].key;}
-catch(e){console.error('无法读取 auth.json',e.message);process.exit(1);}
+// OCR key：环境变量 ZHIPU_API_KEY 优先，否则读 ~/.pi/agent/auth.json (zai-coding-cn)
+let key=process.env.ZHIPU_API_KEY||'';
+if(!key){try{key=JSON.parse(require('fs').readFileSync(process.env.HOME+'/.pi/agent/auth.json','utf8'))['zai-coding-cn'].key;}
+catch(e){console.error('无法读取 OCR key：请设置环境变量 ZHIPU_API_KEY，或准备 ~/.pi/agent/auth.json',e.message);process.exit(1);}}
 const fs=require('fs'),path=require('path');
 const work=path.join(process.cwd(),'work');
 const framesDir=path.join(work,'frames');

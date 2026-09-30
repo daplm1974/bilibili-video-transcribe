@@ -20,8 +20,9 @@ async function jget(url, referer) {
   return r.json();
 }
 function ocrKey() {
+  if (process.env.ZHIPU_API_KEY) return process.env.ZHIPU_API_KEY;   // 跨机器首选：环境变量
   try { return JSON.parse(fs.readFileSync(process.env.HOME + '/.pi/agent/auth.json', 'utf8'))['zai-coding-cn'].key; }
-  catch (e) { return ''; }
+  catch { return ''; }
 }
 async function ocrOnce(pngPath, key) {
   if (!key) return '[skip]';

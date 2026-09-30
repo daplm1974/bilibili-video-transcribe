@@ -83,7 +83,7 @@ node 4_merge.js
 
 ## Pipeline notes
 
-- **OCR key**：`3_ocr.js` 从 `~/.pi/agent/auth.json` 读 `zai-coding-cn` 的 key 调 `open.bigmodel.cn`；独立使用请改成自己的智谱 key 来源
+- **OCR key**：`3_ocr.js`/`1_fetch.js` 优先读环境变量 **`ZHIPU_API_KEY`**，否则回退 `~/.pi/agent/auth.json` 的 `zai-coding-cn`（独立使用请二选一）；
 - **OCR 并发**：实测 2/5/8/10 并发全通过，≥12 触发 `1302` 限流——脚本用 **8 并发 + 指数退避（最多4次）**保持安全；17.8 分钟视频 1066 帧 OCR 约 150s，0 失败
 - **断点续跑**：`3_ocr.js` 以 `work/ocr_frames.json` 为缓存，中断后重跑只补缺失帧；缓存损坏自动备份为 `.bak` 重开
 - **1080P 说明**：1080P DASH 是独立视频轨（无音轨），流水线本就音视频分离，直接兼容
